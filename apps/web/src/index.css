@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --color-otto-midnight: #141b4d;
+  --color-otto-midnight-light: #1e2761;
+  --color-otto-gold: #c9a34e;
+  --color-otto-ice: #cadcfc;
+  --color-otto-gray: #8a99ad;
+  --color-otto-surface: #1e2761;
+  --color-otto-border: #2a3570;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--color-otto-midnight);
+  color: #fff;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.card {
+  @apply rounded-xl border border-otto-border bg-otto-surface/80 p-5 shadow-lg backdrop-blur;
+}
+
+.btn-primary {
+  @apply rounded-lg bg-otto-gold px-4 py-2 font-semibold text-otto-midnight transition hover:brightness-110 disabled:opacity-50;
+}
+
+.input {
+  @apply w-full rounded-lg border border-otto-border bg-otto-midnight px-3 py-2 text-white outline-none focus:border-otto-gold;
+}

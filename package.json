@@ -1,26 +1,33 @@
-{
-  "name": "otto-system",
-  "private": true,
-  "version": "0.1.0",
-  "description": "OTTO — Group-wide ISMS platform for Rosenberger",
-  "scripts": {
-    "build": "pnpm -r run build",
-    "lint": "pnpm -r run lint",
-    "typecheck": "pnpm -r run typecheck",
-    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yml,yaml}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yml,yaml}\""
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "eslint": "^9.39.1",
-    "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.6.2",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.4"
-  },
-  "engines": {
-    "node": ">=22.0.0",
-    "pnpm": ">=9.0.0"
-  },
-  "packageManager": "pnpm@9.15.0"
-}
+{
+  "name": "otto-system",
+  "private": true,
+  "version": "0.1.0",
+  "description": "OTTO — Group-wide ISMS platform for Rosenberger",
+  "scripts": {
+    "build": "pnpm --filter @otto/shared build && pnpm -r --filter !@otto/shared run build",
+    "dev:api": "pnpm --filter @otto/api dev",
+    "dev:web": "pnpm --filter @otto/web dev",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm --filter @otto/shared build && pnpm -r run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yml,yaml}\"",
+    "db:generate": "pnpm --filter @otto/api prisma:generate",
+    "db:migrate": "pnpm --filter @otto/api prisma:migrate",
+    "db:seed": "pnpm --filter @otto/api prisma:seed",
+    "db:setup": "pnpm --filter @otto/api db:setup"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.4"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
+

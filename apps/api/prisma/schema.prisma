@@ -1,0 +1,267 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum ScopeType {
+  GROUP
+  ENTITY
+  SITE
+}
+
+enum DocumentStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  PUBLISHED
+  UNDER_REVISION
+  ARCHIVED
+}
+
+enum DocumentClassification {
+  PUBLIC
+  INTERNAL
+  CONFIDENTIAL
+  RESTRICTED
+}
+
+enum AuditResult {
+  SUCCESS
+  FAILURE
+  DENIED
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  country   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  entities Entity[]
+  users    User[]
+
+  @@map("organizations")
+}
+
+model Entity {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  code           String
+  country        String
+  securityOfficerId String? @map("security_officer_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  sites        Site[]
+  departments  Department[]
+  userScopes   UserEntityScope[]
+  documents    Document[]
+  auditLogs    AuditLog[]
+
+  @@unique([organizationId, code])
+  @@map("entities")
+}
+
+model Site {
+  id        String   @id @default(uuid())
+  entityId  String   @map("entity_id")
+  name      String
+  code      String
+  country   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  entity     Entity @relation(fields: [entityId], references: [id])
+  userScopes UserEntityScope[]
+  auditLogs  AuditLog[]
+
+  @@unique([entityId, code])
+  @@map("sites")
+}
+
+model Department {
+  id        String   @id @default(uuid())
+  entityId  String   @map("entity_id")
+  name      String
+  code      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  entity Entity @relation(fields: [entityId], references: [id])
+
+  @@unique([entityId, code])
+  @@map("departments")
+}
+
+model User {
+  id             String     @id @default(uuid())
+  organizationId String?    @map("organization_id")
+  email          String     @unique
+  username       String     @unique
+  fullName       String     @map("full_name")
+  passwordHash   String?    @map("password_hash")
+  status         UserStatus @default(ACTIVE)
+  lastLoginAt    DateTime?  @map("last_login_at")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  organization Organization?     @relation(fields: [organizationId], references: [id])
+  userRoles    UserRole[]
+  entityScopes UserEntityScope[]
+  auditLogs    AuditLog[]
+  documents    Document[]        @relation("DocumentOwner")
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  isSystem    Boolean  @default(false) @map("is_system")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  module      String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  roleId    String   @map("role_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  id           String @id @default(uuid())
+  roleId       String @map("role_id")
+  permissionId String @map("permission_id")
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model UserEntityScope {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  scopeType ScopeType @map("scope_type")
+  entityId  String?   @map("entity_id")
+  siteId    String?   @map("site_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entity Entity? @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  site   Site?   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@map("user_entity_scopes")
+}
+
+model AuditLog {
+  id            String      @id @default(uuid())
+  timestamp     DateTime    @default(now())
+  userId        String?     @map("user_id")
+  username      String?
+  role          String?
+  entityId      String?     @map("entity_id")
+  siteId        String?     @map("site_id")
+  action        String
+  resourceType  String      @map("resource_type")
+  resourceId    String?     @map("resource_id")
+  oldValue      Json?       @map("old_value")
+  newValue      Json?       @map("new_value")
+  ipAddress     String?     @map("ip_address")
+  userAgent     String?     @map("user_agent")
+  result        AuditResult @default(SUCCESS)
+  reason        String?
+  correlationId String?     @map("correlation_id")
+
+  user   User?   @relation(fields: [userId], references: [id])
+  entity Entity? @relation(fields: [entityId], references: [id])
+  site   Site?   @relation(fields: [siteId], references: [id])
+
+  @@index([timestamp])
+  @@index([userId])
+  @@index([entityId])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+model Document {
+  id             String                 @id @default(uuid())
+  title          String
+  description    String?
+  classification DocumentClassification @default(INTERNAL)
+  status         DocumentStatus         @default(DRAFT)
+  entityId       String?                @map("entity_id")
+  ownerId        String                 @map("owner_id")
+  storageKey     String?                @map("storage_key")
+  mimeType       String?                @map("mime_type")
+  fileSize       Int?                   @map("file_size")
+  version        Int                    @default(1)
+  reviewDate     DateTime?              @map("review_date")
+  expirationDate DateTime?              @map("expiration_date")
+  createdAt      DateTime               @default(now()) @map("created_at")
+  updatedAt      DateTime               @updatedAt @map("updated_at")
+
+  entity   Entity?          @relation(fields: [entityId], references: [id])
+  owner    User             @relation("DocumentOwner", fields: [ownerId], references: [id])
+  versions DocumentVersion[]
+
+  @@map("documents")
+}
+
+model DocumentVersion {
+  id         String   @id @default(uuid())
+  documentId String   @map("document_id")
+  version    Int
+  storageKey String   @map("storage_key")
+  mimeType   String?  @map("mime_type")
+  fileSize   Int?     @map("file_size")
+  uploadedBy String   @map("uploaded_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, version])
+  @@map("document_versions")
+}

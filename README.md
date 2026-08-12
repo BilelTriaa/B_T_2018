@@ -20,7 +20,7 @@ otto-system/
 └── package.json          # Root scripts & shared dev tooling
 ```
 
-> **Note:** The legacy `frontend/` and `backend/` folders from the initial MVP scaffold remain during migration. New development targets `apps/*` and `packages/*`.
+> **Note:** The legacy `frontend/` and `backend/` folders remain as reference during verification. **New development uses `apps/*` and `packages/*`.**
 
 ## Prerequisites
 
@@ -60,7 +60,7 @@ cp .env.example .env
 
 Edit `.env` with your local values before running services.
 
-## Run (once application code is added)
+## Run
 
 Infrastructure:
 
@@ -68,11 +68,29 @@ Infrastructure:
 docker compose up postgres minio -d
 ```
 
-Development (from root, after apps are implemented):
+Database (first time or after schema changes):
 
 ```bash
-pnpm --filter @otto/api dev
-pnpm --filter @otto/web dev
+cp .env.example .env   # if not done yet
+pnpm db:generate
+pnpm db:migrate
+pnpm db:seed
+```
+
+Development — run in two terminals:
+
+```bash
+pnpm dev:api    # NestJS API → http://localhost:4000
+pnpm dev:web    # React app  → http://localhost:5173
+```
+
+Demo login: `admin@rosenberger.com` / `OTTO2026!`
+
+Legacy MVP (still available during migration):
+
+```bash
+cd backend && npm run start:dev
+cd frontend && npm run dev
 ```
 
 ## Documentation
