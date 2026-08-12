@@ -2,82 +2,90 @@
 
 **Inspired by unity. Driven by security.**
 
-Enterprise cybersecurity governance platform — modular monolith architecture replacing Hannibal ISMS.
+OTTO is the Rosenberger Group’s consolidated ISMS platform: it sits on top of each site’s existing ISMS tool (Intervalid), synchronises site data into one Group model, and provides a unified global view across all entities — without replacing local site tooling.
 
-## Stack
+## Monorepo structure
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | React · TypeScript · Vite · Tailwind CSS |
-| Backend | NestJS · TypeScript · Prisma |
-| Database | PostgreSQL |
-| Storage | MinIO (S3-compatible) |
-| Auth | JWT (dev) · Entra ID/OIDC (production-ready) |
-
-## Quick Start
-
-### 1. Copy environment
-
-```bash
-cp .env.example backend/.env
+```text
+otto-system/
+├── apps/
+│   ├── web/              # React + Vite front-end
+│   └── api/              # NestJS REST API
+├── packages/
+│   └── shared/           # Shared TypeScript types & constants
+├── docs/                 # Architecture & product specs
+├── docker-compose.yml    # Postgres, MinIO, services (legacy + future)
+├── pnpm-workspace.yaml
+├── tsconfig.base.json
+└── package.json          # Root scripts & shared dev tooling
 ```
 
-### 2. Start infrastructure
+> **Note:** The legacy `frontend/` and `backend/` folders from the initial MVP scaffold remain during migration. New development targets `apps/*` and `packages/*`.
+
+## Prerequisites
+
+- **Node.js** ≥ 22
+- **pnpm** ≥ 9 (`npm install -g pnpm`)
+- **Docker Desktop** (for PostgreSQL and MinIO)
+
+## Install
+
+From the repository root:
+
+```bash
+pnpm install
+```
+
+## Verify workspace setup
+
+```bash
+# List all workspace packages
+pnpm list -r --depth 0
+
+# Type-check every workspace
+pnpm typecheck
+
+# Build every workspace (shared → api → web)
+pnpm build
+
+# Lint every workspace
+pnpm lint
+```
+
+## Environment
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your local values before running services.
+
+## Run (once application code is added)
+
+Infrastructure:
 
 ```bash
 docker compose up postgres minio -d
 ```
 
-### 3. Setup backend
+Development (from root, after apps are implemented):
 
 ```bash
-cd backend
-npm install
-npx prisma migrate dev --name init
-npm run prisma:seed
-npm run start:dev
+pnpm --filter @otto/api dev
+pnpm --filter @otto/web dev
 ```
 
-### 4. Start frontend
+## Documentation
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+- [OTTO product spec](docs/OTTO-SPEC.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Roadmap](docs/ROADMAP.md)
 
-### 5. Open
+## RBAC roles
 
-- **Frontend:** http://localhost:5173
-- **API:** http://localhost:4000
-- **Swagger:** http://localhost:4000/api/docs
-
-### Demo credentials (DEMO data)
-
-| Email | Password | Role |
-|-------|----------|------|
-| admin@rosenberger.com | OTTO2026! | Group Administrator |
-| bilel.triaa@rosenberger.com | OTTO2026! | Entity Security Officer (Tunisia) |
-
-## Architecture
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/ROADMAP.md](docs/ROADMAP.md).
-
-## Phases
-
-1. **MVP** (current) — Auth, RBAC, entities, audit log, documents
-2. **One ISMS** — Risks, controls, SoA, audits (Hannibal migration)
-3. **One Governance** — Policies, workflows, versioning
-4. **One Path** — Maturity, frameworks, gap analysis
-5. **Executive** — Group dashboards, analytics
-
-## Migration from Hannibal ISMS
-
-| Hannibal | OTTO |
-|----------|------|
-| Express + SQLite | NestJS + PostgreSQL |
-| Session auth | JWT + SSO-ready |
-| Simple roles | RBAC + entity scope |
-| activity_log | Immutable audit_logs |
-
-Phase 2 will migrate 93 ISO controls and 236 tasks from Hannibal ISMS.
+| Role | Scope |
+|------|-------|
+| `GROUP_ADMIN` | All sites |
+| `SITE_OFFICER` | Own site + Group read views |
+| `CONTRIBUTOR` | Assigned records |
+| `AUDITOR` | Read-only audit scope |
