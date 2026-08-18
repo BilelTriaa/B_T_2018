@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: otto
+      POSTGRES_PASSWORD: otto_dev_password
+      POSTGRES_DB: otto
+    ports:
+      - "5433:5432"
+    volumes:
+      - otto_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U otto -d otto"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: otto
+      MINIO_ROOT_PASSWORD: otto_minio_password
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - otto_minio_data:/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://otto:otto_dev_password@postgres:5432/otto?schema=public
+      JWT_SECRET: otto-dev-jwt-secret-change-in-production
+      PORT: 4000
+      FRONTEND_URL: http://localhost:5173
+      NODE_ENV: development
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      VITE_API_URL: http://localhost:4000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  otto_pg_data:
+  otto_minio_data:
