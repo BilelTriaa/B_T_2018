@@ -1,0 +1,16 @@
+{
+  "name": "RTN AXIOME",
+  "install": "sudo apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq postgresql postgresql-contrib\ncorepack enable\ncorepack prepare pnpm@9.15.0 --activate\npnpm install\npnpm --filter @otto/shared build\npnpm db:generate",
+  "start": "bash scripts/launch.sh",
+  "ports": [
+    { "name": "AXIOME web", "port": 5173 },
+    { "name": "AXIOME API", "port": 4000 }
+  ],
+  "terminals": [
+    {
+      "name": "axiome",
+      "command": "bash scripts/launch.sh",
+      "description": "Starts PostgreSQL, migrates/seeds RTN AXIOME, then runs the NestJS API (4000) and Vite web app (5173)."
+    }
+  ]
+}

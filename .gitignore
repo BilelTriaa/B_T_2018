@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment
+.env
+.env.local
+.env.*.local
+**/.env
+
+# Build output
+dist/
+**/dist/
+*.tsbuildinfo
+
+# Legacy MVP scaffold (npm workspaces — to be migrated)
+backend/dist/
+frontend/dist/
+
+# Local storage / database data
+data/
+storage/
+*.db
+*.sqlite
+
+# Docker volumes (local bind mounts)
+docker-data/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Test coverage
+coverage/
+
+# Prisma (legacy)
+backend/prisma/seed-config.json

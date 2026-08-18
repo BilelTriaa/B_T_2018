@@ -1,0 +1,36 @@
+{
+  "name": "rtn-axiome",
+  "private": true,
+  "version": "0.1.0",
+  "description": "RTN AXIOME — portail d’accès Rosenberger Tunisia (Enfidha)",
+  "scripts": {
+    "build": "pnpm --filter @otto/shared build && pnpm -r --filter !@otto/shared run build",
+    "dev": "pnpm --filter @otto/shared build && pnpm --parallel --filter @otto/api --filter @otto/web dev",
+    "dev:api": "pnpm --filter @otto/shared build && pnpm --filter @otto/api dev",
+    "dev:web": "pnpm --filter @otto/web dev",
+    "launch": "bash scripts/launch.sh",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm --filter @otto/shared build && pnpm -r run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yml,yaml}\"",
+    "db:generate": "pnpm --filter @otto/api prisma:generate",
+    "db:migrate": "pnpm --filter @otto/api prisma:migrate",
+    "db:migrate:deploy": "pnpm --filter @otto/api prisma:migrate:deploy",
+    "db:seed": "pnpm --filter @otto/api prisma:seed",
+    "db:setup": "pnpm --filter @otto/api db:setup"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.4"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
+
