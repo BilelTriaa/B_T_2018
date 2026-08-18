@@ -1,0 +1,40 @@
+---
+description: OTTO Group ISMS platform — architecture, stack, design, and coding standards
+alwaysApply: true
+---
+
+# OTTO Platform Rules
+
+## Purpose
+- OTTO sits **on top** of each site's ISMS tool (**Intervalid**). It does **not** replace it.
+- OTTO syncs site ISMS data into one Group model and provides a consolidated global view.
+- Core domain: `Site`, `Document`, `Control`, `SoAEntry`, `Risk`, `Treatment`, `GroupRisk`, `RoadmapItem`, `MaturityScore`, `SyncRecord`.
+- Every synced record carries **provenance**: site, source system, last-synced timestamp.
+
+## Stack (do not deviate without being asked)
+- **Monorepo**: pnpm workspaces.
+- **Web**: React, TypeScript, Vite, Tailwind, TanStack Query, React Router, Recharts.
+- **API**: NestJS, TypeScript, REST, Prisma, PostgreSQL, class-validator/zod DTOs.
+- **Auth**: JWT + RBAC. Roles: `GROUP_ADMIN`, `SITE_OFFICER`, `CONTRIBUTOR`, `AUDITOR`. SSO (OIDC) later.
+- **Storage**: S3-compatible (MinIO locally; abstract provider).
+- **Containers**: Dockerfile per app; root docker-compose for web, api, postgres, storage.
+
+## Structure
+- `apps/web`, `apps/api`, `packages/shared`.
+- API: one NestJS module per domain — `isms`, `governance`, `path`, `entities`, `executive`, `sync`, `analytics`, `auth` (controller + service + Prisma repo + DTOs).
+- Web: `src/modules/*` mirroring API modules.
+
+## Design system
+- Dark executive theme. Colors: midnight `#141B4D` / `#1E2761`, gold `#C9A34E`, ice `#CADCFC`, light `#F3F1EA`, ink `#1B1B1B`.
+- Fonts: Playfair Display (headings), Inter (body) via Google Fonts.
+- Crown brand motif. Tagline on login + footer: **Inspired by unity. Driven by security.**
+- UI must clearly indicate **one site** vs **whole Group** view.
+
+## Coding standards
+- Strict TypeScript; avoid `any`. Shared types in `packages/shared`.
+- Every API endpoint: RBAC + site-scoping (`SITE_OFFICER` = own site + Group read; `GROUP_ADMIN` = all).
+- Small, focused diffs. Comments only where intent is non-obvious.
+- New files go in the correct workspace folder per STRUCTURE above.
+
+## Migration note
+Legacy scaffold may use `frontend/` and `backend/` — new work should move toward `apps/*` and `packages/shared` when restructuring.

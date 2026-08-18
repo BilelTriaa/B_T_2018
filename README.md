@@ -1,43 +1,126 @@
-# Mintlify Starter Kit
+# OTTO System
 
-Use the starter kit to get your docs deployed and ready to customize.
+**Inspired by unity. Driven by security.**
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+OTTO is the Rosenberger Group’s consolidated ISMS platform: it sits on top of each site’s existing ISMS tool (Intervalid), synchronises site data into one Group model, and provides a unified global view across all entities — without replacing local site tooling.
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+## Monorepo structure
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
-mint dev
+```text
+otto-system/
+├── apps/
+│   ├── web/              # React + Vite front-end
+│   └── api/              # NestJS REST API
+├── packages/
+│   └── shared/           # Shared TypeScript types & constants
+├── docs/                 # Architecture & product specs
+├── docker-compose.yml    # Postgres, MinIO, services (legacy + future)
+├── pnpm-workspace.yaml
+├── tsconfig.base.json
+└── package.json          # Root scripts & shared dev tooling
 ```
 
-View your local preview at `http://localhost:3000`.
+> **Note:** The legacy `frontend/` and `backend/` folders remain as reference during verification. **New development uses `apps/*` and `packages/*`.**
 
-## Publishing changes
+## Prerequisites
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+- **Node.js** ≥ 22
+- **pnpm** ≥ 9 (`npm install -g pnpm`)
+- **Docker Desktop** (for PostgreSQL and MinIO)
 
-## Need help?
+## Install
 
-### Troubleshooting
+From the repository root:
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+```bash
+pnpm install
+```
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+## Verify workspace setup
+
+```bash
+# List all workspace packages
+pnpm list -r --depth 0
+
+# Type-check every workspace
+pnpm typecheck
+
+# Build every workspace (shared → api → web)
+pnpm build
+
+# Lint every workspace
+pnpm lint
+```
+
+## Environment
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your local values before running services.
+
+## Launch
+
+One command (starts Postgres if needed, migrates, seeds, then API + web):
+
+```bash
+pnpm launch
+```
+
+- Web: http://localhost:5173
+- API: http://localhost:4000
+- Swagger: http://localhost:4000/api/docs
+- Health: http://localhost:4000/health
+- Demo login: `admin@rosenberger.com` / `OTTO2026!`
+
+`scripts/launch.sh` uses Docker Compose when Docker is available, and native PostgreSQL otherwise (port `5432`).
+
+## Run (manual)
+
+Infrastructure (Docker):
+
+```bash
+docker compose up postgres minio -d
+```
+
+Database (first time or after schema changes):
+
+```bash
+cp .env.example .env   # if not done yet
+pnpm db:generate
+pnpm db:migrate:deploy
+pnpm db:seed
+```
+
+Development — one process or two terminals:
+
+```bash
+pnpm dev        # API + web together
+pnpm dev:api    # NestJS API → http://localhost:4000
+pnpm dev:web    # React app  → http://localhost:5173
+```
+
+Demo login: `admin@rosenberger.com` / `OTTO2026!`
+
+Legacy MVP (still available during migration):
+
+```bash
+cd backend && npm run start:dev
+cd frontend && npm run dev
+```
+
+## Documentation
+
+- [OTTO product spec](docs/OTTO-SPEC.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Roadmap](docs/ROADMAP.md)
+
+## RBAC roles
+
+| Role | Scope |
+|------|-------|
+| `GROUP_ADMIN` | All sites |
+| `SITE_OFFICER` | Own site + Group read views |
+| `CONTRIBUTOR` | Assigned records |
+| `AUDITOR` | Read-only audit scope |
