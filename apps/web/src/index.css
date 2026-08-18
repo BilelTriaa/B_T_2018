@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --color-axiome-navy: #071525;
+  --color-axiome-panel: #0d2137;
+  --color-axiome-border: #1c3d5c;
+  --color-axiome-red: #e31c3d;
+  --color-axiome-gold: #d4a84b;
+  --color-axiome-cyan: #4ec4e0;
+  --color-axiome-muted: #8aa3b8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--color-axiome-navy);
+  color: #fff;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.card {
+  @apply rounded-xl border border-axiome-border bg-axiome-panel/90 p-5 shadow-lg backdrop-blur;
+}
+
+.btn-primary {
+  @apply rounded-lg bg-axiome-red px-4 py-2 font-semibold text-white transition hover:brightness-110 disabled:opacity-50;
+}
+
+.input {
+  @apply w-full rounded-lg border border-axiome-border bg-axiome-navy px-3 py-2 text-white outline-none focus:border-axiome-cyan;
+}
+
+.badge {
+  @apply rounded-full px-3 py-1 text-xs font-medium;
+}

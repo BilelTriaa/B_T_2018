@@ -1,0 +1,14 @@
+---
+description: RTN AXIOME plant portal conventions
+alwaysApply: true
+---
+
+# RTN AXIOME
+
+AXIOME is the Rosenberger Tunisia (RTN) plant access portal for the Enfidha factory.
+
+- Do not rebrand this product as OTTO. OTTO is the Group ISMS; AXIOME is the RTN plant portal.
+- Keep French UI copy for operator-facing screens.
+- Demo login: `bilel.triaa@rosenberger.com` / `AXIOME2026!`
+- Stack: pnpm workspaces, NestJS API (`:4000`), React/Vite web (`:5173`), PostgreSQL.
+- Launch with `pnpm launch`.
