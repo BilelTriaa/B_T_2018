@@ -1,0 +1,17 @@
+{
+  "name": "Mintlify Docs",
+  "install": "mkdir -p \"$HOME/.npm-global\" && npm config set prefix \"$HOME/.npm-global\" && npm install -g mint",
+  "ports": [
+    {
+      "name": "mint dev",
+      "port": 3000
+    }
+  ],
+  "terminals": [
+    {
+      "name": "mint dev",
+      "command": "export PATH=\"$HOME/.npm-global/bin:$PATH\" && mint dev",
+      "description": "Mintlify local preview server. Serves the docs at http://localhost:3000 with live reload."
+    }
+  ]
+}
