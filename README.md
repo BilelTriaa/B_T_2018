@@ -60,9 +60,25 @@ cp .env.example .env
 
 Edit `.env` with your local values before running services.
 
-## Run
+## Launch
 
-Infrastructure:
+One command (starts Postgres if needed, migrates, seeds, then API + web):
+
+```bash
+pnpm launch
+```
+
+- Web: http://localhost:5173
+- API: http://localhost:4000
+- Swagger: http://localhost:4000/api/docs
+- Health: http://localhost:4000/health
+- Demo login: `admin@rosenberger.com` / `OTTO2026!`
+
+`scripts/launch.sh` uses Docker Compose when Docker is available, and native PostgreSQL otherwise (port `5432`).
+
+## Run (manual)
+
+Infrastructure (Docker):
 
 ```bash
 docker compose up postgres minio -d
@@ -73,13 +89,14 @@ Database (first time or after schema changes):
 ```bash
 cp .env.example .env   # if not done yet
 pnpm db:generate
-pnpm db:migrate
+pnpm db:migrate:deploy
 pnpm db:seed
 ```
 
-Development — run in two terminals:
+Development — one process or two terminals:
 
 ```bash
+pnpm dev        # API + web together
 pnpm dev:api    # NestJS API → http://localhost:4000
 pnpm dev:web    # React app  → http://localhost:5173
 ```

@@ -1,13 +1,19 @@
 import { useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('admin@rosenberger.com');
   const [password, setPassword] = useState('OTTO2026!');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  if (!authLoading && user) {
+    return <Navigate to="/" replace />;
+  }
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,6 +21,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {

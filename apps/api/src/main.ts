@@ -7,7 +7,11 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
   app.enableCors({
     origin: process.env.API_CORS_ORIGIN ?? process.env.FRONTEND_URL ?? 'http://localhost:5173',
     credentials: true,
@@ -28,8 +32,8 @@ async function bootstrap() {
     .build();
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, config));
 
-  const port = process.env.API_PORT ?? process.env.PORT ?? 4000;
-  await app.listen(port);
+  const port = Number(process.env.API_PORT ?? process.env.PORT ?? 4000);
+  await app.listen(port, '0.0.0.0');
   console.log(`\n🛡️  OTTO System API v1.0`);
   console.log(`    Inspired by unity. Driven by security.`);
   console.log(`    ➜  http://localhost:${port}`);

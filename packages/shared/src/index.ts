@@ -2,4 +2,4 @@
 
 export const OTTO_TAGLINE = 'Inspired by unity. Driven by security.' as const;
 
-export * from './auth.js';
+export * from './auth';

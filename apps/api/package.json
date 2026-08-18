@@ -14,8 +14,9 @@
     "test": "jest",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
-    "db:setup": "prisma migrate dev --name init && pnpm prisma:seed"
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:seed": "ts-node --transpile-only --project prisma/tsconfig.json prisma/seed.ts",
+    "db:setup": "prisma migrate deploy && pnpm prisma:seed"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -59,6 +60,6 @@
     "typescript": "^5.9.3"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "ts-node --transpile-only --project prisma/tsconfig.json prisma/seed.ts"
   }
 }

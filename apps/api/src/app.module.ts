@@ -14,6 +14,8 @@ import { RolesModule } from './roles/roles.module';
 import { DocumentsModule } from './documents/documents.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -33,7 +35,9 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     DocumentsModule,
     DashboardsModule,
   ],
+  controllers: [AppController],
   providers: [
+    AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
   ],
